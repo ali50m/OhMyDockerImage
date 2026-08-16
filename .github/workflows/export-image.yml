@@ -47,11 +47,14 @@ jobs:
       - name: Read image ID
         id: image-info
         run: |
-          image_id="$(docker image inspect --platform "$PLATFORM" --format '{{.Id}}' "$IMAGE")"
-          image_id="${image_id#sha256:}"
+          index_id="$(docker image inspect --format '{{.Id}}' "$IMAGE")"
+          index_id="${index_id#sha256:}"
+          platform_image_id="$(docker image inspect --platform "$PLATFORM" --format '{{.Id}}' "$IMAGE")"
+          platform_image_id="${platform_image_id#sha256:}"
           platform_suffix="${PLATFORM//\//-}"
-          echo "artifact_name=docker-image-${platform_suffix}-sha256-${image_id}" >> "$GITHUB_OUTPUT"
-          echo "Image ID: sha256:${image_id}"
+          echo "artifact_name=docker-image-${platform_suffix}-index-sha256-${index_id}-image-sha256-${platform_image_id}" >> "$GITHUB_OUTPUT"
+          echo "Multi-platform index ID: sha256:${index_id}"
+          echo "Platform image ID: sha256:${platform_image_id}"
 
       - name: Save image archive
         run: |
