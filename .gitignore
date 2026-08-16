@@ -1,0 +1,3 @@
+# Downloaded Docker archives
+*.tar
+*.tar.gz
