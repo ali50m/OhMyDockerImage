@@ -44,6 +44,15 @@ jobs:
       - name: Pull image
         run: docker pull --platform "$PLATFORM" "$IMAGE"
 
+      - name: Read image ID
+        id: image-info
+        run: |
+          image_id="$(docker image inspect --platform "$PLATFORM" --format '{{.Id}}' "$IMAGE")"
+          image_id="${image_id#sha256:}"
+          platform_suffix="${PLATFORM//\//-}"
+          echo "artifact_name=docker-image-${platform_suffix}-sha256-${image_id}" >> "$GITHUB_OUTPUT"
+          echo "Image ID: sha256:${image_id}"
+
       - name: Save image archive
         run: |
           mkdir -p docker-image
@@ -53,7 +62,7 @@ jobs:
       - name: Upload image archive
         uses: actions/upload-artifact@v7
         with:
-          name: docker-image
+          name: ${{ steps.image-info.outputs.artifact_name }}
           path: docker-image/
           if-no-files-found: error
           retention-days: 7
